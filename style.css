@@ -125,9 +125,22 @@ header h1 {
   }
 }
 /*moje */
-.error{
+.message{
+  color: rgb(177, 116, 3);
   min-height: 1.5em;
   margin: 3px; 
   font-size: 14px;
+  
+}
+.error{
   color: red;
 }
+
+.items .to-remove{
+  background-color: rgb(241, 173, 173);
+  border: 1px red solid;
+}
+.items .to-remove i{
+  text-shadow: 0 0 2px red;
+}
+  
