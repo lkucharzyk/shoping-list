@@ -5,6 +5,13 @@ const clearBtn = document.querySelector('#clear');
 const itemFilter = document.querySelector('#filter');
 const confirmEl = document.querySelector('#confirm'); 
 
+function displayItems(){
+    const itemsFromStorage = getItemsFromStorage();
+    itemsFromStorage.forEach((item) =>addItemtoDOM(item));
+    checkUI();
+
+}
+
 
 function addItem(e){
     e.preventDefault();
@@ -23,8 +30,33 @@ function addItem(e){
         validateError('Please fill field');
         return;
     }
+    
+    addItemtoDOM(newItem);
+    addItemToStorage(newItem);
+
+    checkUI()
+    itemInput.value = '';
+}
+
+function getItemsFromStorage(){
+    let itemsFromStorage;
+    if(localStorage.getItem('items') === null){
+        itemsFromStorage = [];
+    }else{
+        itemsFromStorage = JSON.parse(localStorage.getItem('items'));
+    }
+    return itemsFromStorage;
+}
+
+function addItemToStorage(item){
+    const itemsFromStorage = getItemsFromStorage();
+    itemsFromStorage.push(item);
+    localStorage.setItem('items', JSON.stringify(itemsFromStorage));
+}
+
+function addItemtoDOM(item){
     const li = document.createElement('li');
-    li.appendChild(document.createTextNode(newItem));
+    li.appendChild(document.createTextNode(item));
     itemList.appendChild(li);
 
     const button = document.createElement('button');
@@ -34,9 +66,12 @@ function addItem(e){
     const i = document.createElement('i');
     i.className = 'fa-solid fa-xmark';
     button.appendChild(i);
+}
 
-    checkUI()
-
+function onClickItem(e){
+    if(e.target.parentElement.tagName === 'BUTTON'){
+        removeItem(e);
+    }
 }
 
 function removeItem(e){
@@ -60,12 +95,15 @@ function removeItem(e){
    
     }
 
-    if(e.target.parentElement.tagName === 'BUTTON'){
-        if(e.target.getAttribute('clickedFirst')){
-            li.remove();
-        }else{
-            confirmation(e);
-        }
+    if(e.target.getAttribute('clickedFirst')){
+        let itemsFromStorage = getItemsFromStorage();
+        const ItemName = li.innerText.toLowerCase();
+        itemsFromStorage.splice(itemsFromStorage.indexOf(ItemName), 1);
+        localStorage.setItem('items', JSON.stringify(itemsFromStorage));
+
+        li.remove();
+    }else{
+        confirmation(e);
     }
     checkUI()
 }
@@ -74,6 +112,7 @@ function clearItems(){
     while (itemList.lastChild){
         itemList.lastChild.remove();
     }
+    localStorage.removeItem('items');
     checkUI()
 }
 
@@ -101,9 +140,14 @@ function filterItems(){
     });
 }
 
-itemFrom.addEventListener('submit',addItem);
-itemList.addEventListener('click', removeItem);
-clearBtn.addEventListener('click', clearItems);
-itemFilter.addEventListener('keyup', filterItems);
+function init(){
+    itemFrom.addEventListener('submit',addItem);
+    itemList.addEventListener('click', onClickItem);
+    clearBtn.addEventListener('click', clearItems);
+    itemFilter.addEventListener('keyup', filterItems);
+    document.addEventListener('DOMContentLoaded', displayItems);
 
-checkUI()
+    checkUI();
+}
+
+init();
