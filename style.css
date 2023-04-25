@@ -143,4 +143,6 @@ header h1 {
 .items .to-remove i{
   text-shadow: 0 0 2px red;
 }
-  
+.highlight{
+  color: rgba(243, 141, 46, 0.911);
+}

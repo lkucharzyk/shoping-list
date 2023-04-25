@@ -2,7 +2,7 @@ const itemFrom = document.querySelector('#item-form');
 const itemInput = itemFrom.querySelector('input');
 const itemList = document.querySelector('#item-list');
 const clearBtn = document.querySelector('#clear');
-const itemFilter = document.querySelector('.filter');
+const itemFilter = document.querySelector('#filter');
 const confirmEl = document.querySelector('#confirm'); 
 
 
@@ -89,8 +89,21 @@ function checkUI(){
     }
 }
 
+function filterItems(){
+    const input =  itemFilter.value.toLowerCase();
+    const items = itemList.querySelectorAll('li');
+    items.forEach(item => {
+        if(!item.innerText.toLowerCase().startsWith(input)){
+            item.style.display = 'none';
+        }else{
+            item.style.display = 'flex';
+        }
+    });
+}
+
 itemFrom.addEventListener('submit',addItem);
 itemList.addEventListener('click', removeItem);
 clearBtn.addEventListener('click', clearItems);
+itemFilter.addEventListener('keyup', filterItems);
 
 checkUI()
