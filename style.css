@@ -146,3 +146,7 @@ header h1 {
 .highlight{
   color: rgba(243, 141, 46, 0.911);
 }
+
+.edit-mode{
+  color: rgb(82, 82, 255);
+}

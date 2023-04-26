@@ -3,7 +3,10 @@ const itemInput = itemFrom.querySelector('input');
 const itemList = document.querySelector('#item-list');
 const clearBtn = document.querySelector('#clear');
 const itemFilter = document.querySelector('#filter');
-const confirmEl = document.querySelector('#confirm'); 
+const confirmEl = document.querySelector('#confirm');
+const formBtn = itemFrom.querySelector('button');
+
+let editMode = false;
 
 function displayItems(){
     const itemsFromStorage = getItemsFromStorage();
@@ -23,12 +26,26 @@ function addItem(e){
         const errorMess = document.createElement('div');
         errorMess.innerText = error;
         errorEl.appendChild(errorMess);
-        setTimeout(() => errorMess.remove(), 1000);
+        setTimeout(() => errorMess.remove(), 1500);
+    }
+
+    if(checkIfitemExist(newItem)){
+        validateError('Please add item with unique name');
+        return;
     }
 
     if(newItem === ''){
         validateError('Please fill field');
         return;
+    }
+
+    if(editMode){
+        const item = itemList.querySelector('.edit-mode');
+        removeItem(item);
+        editMode = false;
+        formBtn.style.backgroundColor = '#333';
+        itemList.querySelectorAll('li').forEach(item => item.classList.remove('edit-mode'));
+        formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item';
     }
     
     addItemtoDOM(newItem);
@@ -70,42 +87,59 @@ function addItemtoDOM(item){
 
 function onClickItem(e){
     if(e.target.parentElement.tagName === 'BUTTON'){
-        removeItem(e);
+        const li = e.target.parentElement.parentElement;
+        removeItem(li);
+    }else{
+        editItemSet(e.target);
     }
 }
 
-function removeItem(e){
-    const li = e.target.parentElement.parentElement;
-    function confirmation(e){
+function checkIfitemExist(item){
+    const itemsFromStorage = getItemsFromStorage();
+    return itemsFromStorage.includes(item);
+}
+
+function removeItem(item){
+    function confirmation(item){
         const confirmMess = document.createElement('div');
         if(!confirmEl.hasChildNodes()){
             confirmMess.innerText = "Click X angain to confirm";
             confirmEl.appendChild(confirmMess);
         }
 
-        e.target.setAttribute('clickedFirst', 'true');
-        li.classList.add('to-remove');
+        item.setAttribute('clickedFirst', 'true');
+        item.classList.add('to-remove');
 
         setTimeout(()=>{
             confirmMess.remove();
-            e.target.removeAttribute('clickedFirst');
-            li.classList.remove('to-remove');
+            item.removeAttribute('clickedFirst');
+            item.classList.remove('to-remove');
         }, 1500);
 
    
     }
 
-    if(e.target.getAttribute('clickedFirst')){
+    if(item.classList.contains('edit-mode') || item.getAttribute('clickedFirst')){
         let itemsFromStorage = getItemsFromStorage();
-        const ItemName = li.innerText.toLowerCase();
+        const ItemName = item.innerText.toLowerCase();
         itemsFromStorage.splice(itemsFromStorage.indexOf(ItemName), 1);
         localStorage.setItem('items', JSON.stringify(itemsFromStorage));
 
-        li.remove();
+        item.remove();
     }else{
-        confirmation(e);
+        confirmation(item);
     }
     checkUI()
+}
+
+function editItemSet(item){
+    editMode = true;
+
+    itemList.querySelectorAll('li').forEach(item => item.classList.remove('edit-mode'));
+    item.classList.add('edit-mode');
+    formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Edit item';
+    formBtn.style.backgroundColor = 'rgb(82, 82, 255)';
+    itemInput.value = item.textContent;
 }
 
 function clearItems(){
